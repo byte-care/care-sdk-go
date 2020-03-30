@@ -1,4 +1,4 @@
-module kan_sdk
+module github.com/kan-fun/kan-sdk-go
 
 go 1.14
 
