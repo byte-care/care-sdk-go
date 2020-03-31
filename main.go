@@ -60,7 +60,7 @@ func (client *Client) Email(topic string, msg string) (err error) {
 		data[k] = s
 	}
 
-	_, err = post("http://58b5dd3da8514f30a8dfbf42bb0a740c-cn-beijing.alicloudapi.com/send-email", data)
+	_, err = post("https://api.kan-fun.com/send-email", data)
 
 	return
 }
