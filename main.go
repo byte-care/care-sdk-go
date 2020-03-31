@@ -3,11 +3,16 @@ package kan_sdk
 import (
 	"bytes"
 	"errors"
+	"fmt"
 	"net/http"
 	"net/url"
+	"strconv"
 	"strings"
+	"time"
 
-	"github.com/kan-fun/kan-core"
+	"github.com/google/uuid"
+
+	sign "github.com/kan-fun/kan-core"
 )
 
 type Client struct {
@@ -27,21 +32,20 @@ func NewClient(accessKey, secretKey string) (client *Client, err error) {
 	return
 }
 
-func (client *Client) consPostData(specificParameter map[string]string) (data url.Values) {
-	commonParameter := sign.CommonParameter{
-		client.credential.AccessKey,
-		"sdfsdf",
-		"4242",
+func makeTimestamp() int64 {
+	return time.Now().UnixNano() / int64(time.Millisecond)
+}
+
+func (client *Client) consPostData(specificParameter map[string]string) (data url.Values, commonParameter *sign.CommonParameter, signature string) {
+	commonParameter = &sign.CommonParameter{
+		AccessKey:      client.credential.AccessKey,
+		SignatureNonce: uuid.New().String(),
+		Timestamp:      strconv.FormatInt(makeTimestamp(), 10),
 	}
 
-	signature := client.credential.Sign(commonParameter, specificParameter)
+	signature = client.credential.Sign(*commonParameter, specificParameter)
 
-	data = map[string][]string{
-		"access_key":      {commonParameter.AccessKey},
-		"signature_nonce": {commonParameter.SignatureNonce},
-		"timestamp":       {commonParameter.Timestamp},
-		"signature":       {signature},
-	}
+	data = map[string][]string{}
 
 	for k, v := range specificParameter {
 		s := make([]string, 1)
@@ -53,11 +57,25 @@ func (client *Client) consPostData(specificParameter map[string]string) (data ur
 	return
 }
 
-func (client *Client) post(specificParameter map[string]string) (err error) {
-	data := client.consPostData(specificParameter)
+func (client *Client) post(path string, specificParameter map[string]string) (err error) {
+	data, commonParameter, signature := client.consPostData(specificParameter)
 	body := strings.NewReader(data.Encode())
 
-	resp, err := http.Post("https://api.kan-fun.com/send-email", "application/x-www-form-urlencoded", body)
+	httpClient := &http.Client{}
+
+	req, err := http.NewRequest("POST", fmt.Sprintf("https://api.kan-fun.com/%s", path), body)
+	if err != nil {
+		return
+	}
+
+	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+
+	req.Header.Set("X-Ca-Key", commonParameter.AccessKey)
+	req.Header.Set("X-Ca-Timestamp", commonParameter.Timestamp)
+	req.Header.Set("X-Ca-Nonce", commonParameter.SignatureNonce)
+	req.Header.Set("X-Ca-Signature", signature)
+
+	resp, err := httpClient.Do(req)
 	if err != nil {
 		return
 	}
@@ -77,5 +95,5 @@ func (client *Client) Email(topic string, msg string) (err error) {
 		"msg":   msg,
 	}
 
-	return client.post(specificParameter)
+	return client.post("send-email", specificParameter)
 }
