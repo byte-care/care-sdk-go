@@ -1,6 +1,8 @@
 package kan_sdk
 
 import (
+	"bytes"
+	"errors"
 	"net/http"
 	"net/url"
 	"strings"
@@ -25,34 +27,22 @@ func NewClient(accessKey, secretKey string) (client *Client, err error) {
 	return
 }
 
-func post(url string, data url.Values) (resp *http.Response, err error) {
-	body := strings.NewReader(data.Encode())
-
-	resp, err = http.Post(url, "application/x-www-form-urlencoded", body)
-
-	return
-}
-
-func (client *Client) Email(topic string, msg string) (err error) {
+func (client *Client) consPostData(specificParameter map[string]string) (data url.Values) {
 	commonParameter := sign.CommonParameter{
 		client.credential.AccessKey,
 		"sdfsdf",
 		"4242",
 	}
 
-	specificParameter := map[string]string{
-		"topic": topic,
-		"msg":   msg,
-	}
-
 	signature := client.credential.Sign(commonParameter, specificParameter)
 
-	data := map[string][]string{
+	data = map[string][]string{
 		"access_key":      {commonParameter.AccessKey},
 		"signature_nonce": {commonParameter.SignatureNonce},
 		"timestamp":       {commonParameter.Timestamp},
 		"signature":       {signature},
 	}
+
 	for k, v := range specificParameter {
 		s := make([]string, 1)
 		s[0] = v
@@ -60,7 +50,32 @@ func (client *Client) Email(topic string, msg string) (err error) {
 		data[k] = s
 	}
 
-	_, err = post("https://api.kan-fun.com/send-email", data)
+	return
+}
+
+func (client *Client) post(specificParameter map[string]string) (err error) {
+	data := client.consPostData(specificParameter)
+	body := strings.NewReader(data.Encode())
+
+	resp, err := http.Post("https://api.kan-fun.com/send-email", "application/x-www-form-urlencoded", body)
+	if err != nil {
+		return
+	}
+
+	if resp.StatusCode != 200 {
+		buf := new(bytes.Buffer)
+		buf.ReadFrom(resp.Body)
+		return errors.New(buf.String())
+	}
 
 	return
+}
+
+func (client *Client) Email(topic string, msg string) (err error) {
+	specificParameter := map[string]string{
+		"topic": topic,
+		"msg":   msg,
+	}
+
+	return client.post(specificParameter)
 }
