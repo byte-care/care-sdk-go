@@ -1,4 +1,4 @@
-package kan_sdk
+package kansdk
 
 import (
 	"testing"
@@ -7,8 +7,8 @@ import (
 )
 
 func TestSendEmail(t *testing.T) {
-	AccessKey := "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
-	SecretKey := "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+	AccessKey := "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+	SecretKey := "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
 
 	kan, err := NewClient(AccessKey, SecretKey)
 	if err != nil {

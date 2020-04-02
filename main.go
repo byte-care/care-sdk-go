@@ -1,4 +1,4 @@
-package kan_sdk
+package kansdk
 
 import (
 	"bytes"
@@ -12,15 +12,17 @@ import (
 
 	"github.com/google/uuid"
 
-	sign "github.com/kan-fun/kan-core"
+	core "github.com/kan-fun/kan-core"
 )
 
+// Client ...
 type Client struct {
-	credential *sign.Credential
+	credential *core.Credential
 }
 
+// NewClient ...
 func NewClient(accessKey, secretKey string) (client *Client, err error) {
-	credential, err := sign.NewCredential(accessKey, secretKey)
+	credential, err := core.NewCredential(accessKey, secretKey)
 	if err != nil {
 		return
 	}
@@ -36,8 +38,8 @@ func makeTimestamp() int64 {
 	return time.Now().UnixNano() / int64(time.Millisecond)
 }
 
-func (client *Client) consPostData(specificParameter map[string]string) (data url.Values, commonParameter *sign.CommonParameter, signature string) {
-	commonParameter = &sign.CommonParameter{
+func (client *Client) consPostData(specificParameter map[string]string) (data url.Values, commonParameter *core.CommonParameter, signature string) {
+	commonParameter = &core.CommonParameter{
 		AccessKey:      client.credential.AccessKey,
 		SignatureNonce: uuid.New().String(),
 		Timestamp:      strconv.FormatInt(makeTimestamp(), 10),
@@ -70,10 +72,10 @@ func (client *Client) post(path string, specificParameter map[string]string) (er
 
 	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 
-	req.Header.Set("X-Ca-Key", commonParameter.AccessKey)
-	req.Header.Set("X-Ca-Timestamp", commonParameter.Timestamp)
-	req.Header.Set("X-Ca-Nonce", commonParameter.SignatureNonce)
-	req.Header.Set("X-Ca-Signature", signature)
+	req.Header.Set("Kan-Key", commonParameter.AccessKey)
+	req.Header.Set("Kan-Timestamp", commonParameter.Timestamp)
+	req.Header.Set("Kan-Nonce", commonParameter.SignatureNonce)
+	req.Header.Set("Kan-Signature", signature)
 
 	resp, err := httpClient.Do(req)
 	if err != nil {
@@ -89,6 +91,7 @@ func (client *Client) post(path string, specificParameter map[string]string) (er
 	return
 }
 
+// Email ...
 func (client *Client) Email(topic string, msg string) (err error) {
 	specificParameter := map[string]string{
 		"topic": topic,
