@@ -23,11 +23,6 @@ func TestLogPub(t *testing.T) {
 	AccessKey := "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
 	SecretKey := "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
 
-	kanLog, err := NewLogClient(AccessKey, SecretKey)
-	if err != nil {
-		panic(err)
-	}
-
-	err = kanLog.PubLog("")
-	// assert.Equal(t, "User not Exist", err.Error())
+	_, err := NewLogClient(AccessKey, SecretKey)
+	assert.Equal(t, "User not Exist", err.Error())
 }

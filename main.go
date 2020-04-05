@@ -137,7 +137,6 @@ func NewLogClient(accessKey, secretKey string) (logClient *LogClient, err error)
 		bodyString := string(bodyBytes)
 		return nil, errors.New(bodyString)
 	}
-	defer conn.Close()
 
 	logClient = &LogClient{
 		client,
@@ -149,13 +148,20 @@ func NewLogClient(accessKey, secretKey string) (logClient *LogClient, err error)
 
 // PubLog ...
 func (logClient *LogClient) PubLog(content string) (err error) {
-	_, message, err := logClient.conn.ReadMessage()
+	_, _, err = logClient.conn.ReadMessage()
 	if err != nil {
-		println("read:", err)
 		return
 	}
 
-	fmt.Printf("recv: %s", message)
+	return
+}
+
+// CloseLog ...
+func (logClient *LogClient) CloseLog(isSuccessful bool) (err error) {
+	err = logClient.conn.Close()
+	if err != nil {
+		return
+	}
 
 	return
 }
