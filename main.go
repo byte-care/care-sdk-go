@@ -148,7 +148,7 @@ func NewLogClient(accessKey, secretKey string) (logClient *LogClient, err error)
 
 // PubLog ...
 func (logClient *LogClient) PubLog(content string) (err error) {
-	_, _, err = logClient.conn.ReadMessage()
+	err = logClient.conn.WriteMessage(websocket.TextMessage, []byte(content))
 	if err != nil {
 		return
 	}
@@ -158,7 +158,7 @@ func (logClient *LogClient) PubLog(content string) (err error) {
 
 // CloseLog ...
 func (logClient *LogClient) CloseLog(isSuccessful bool) (err error) {
-	err = logClient.conn.Close()
+	err = logClient.conn.WriteMessage(websocket.CloseMessage, websocket.FormatCloseMessage(websocket.CloseNormalClosure, ""))
 	if err != nil {
 		return
 	}
