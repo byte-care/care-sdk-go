@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"errors"
 	"fmt"
+	"io/ioutil"
 	"net/http"
 	"net/url"
 	"strconv"
@@ -11,6 +12,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/gorilla/websocket"
 
 	core "github.com/kan-fun/kan-core"
 )
@@ -59,13 +61,17 @@ func (client *Client) consPostData(specificParameter map[string]string) (data ur
 	return
 }
 
+func consAPIURL(path string) string {
+	return fmt.Sprintf("https://api.kan-fun.com/%s", path)
+}
+
 func (client *Client) post(path string, specificParameter map[string]string) (err error) {
 	data, commonParameter, signature := client.consPostData(specificParameter)
 	body := strings.NewReader(data.Encode())
 
 	httpClient := &http.Client{}
 
-	req, err := http.NewRequest("POST", fmt.Sprintf("https://api.kan-fun.com/%s", path), body)
+	req, err := http.NewRequest("POST", consAPIURL(path), body)
 	if err != nil {
 		return
 	}
@@ -99,4 +105,57 @@ func (client *Client) Email(topic string, msg string) (err error) {
 	}
 
 	return client.post("send-email", specificParameter)
+}
+
+// LogClient ...
+type LogClient struct {
+	*Client
+	conn *websocket.Conn
+}
+
+// NewLogClient ...
+func NewLogClient(accessKey, secretKey string) (logClient *LogClient, err error) {
+	client, err := NewClient(accessKey, secretKey)
+	if err != nil {
+		return nil, err
+	}
+
+	url := url.URL{Scheme: "wss", Host: "live.kan-fun.com", Path: "/log/pub"}
+
+	_, commonParameter, signature := client.consPostData(nil)
+
+	header := http.Header{
+		"Kan-Key":       {commonParameter.AccessKey},
+		"Kan-Timestamp": {commonParameter.Timestamp},
+		"Kan-Nonce":     {commonParameter.SignatureNonce},
+		"Kan-Signature": {signature},
+	}
+
+	conn, resp, err := websocket.DefaultDialer.Dial(url.String(), header)
+	if err != nil {
+		bodyBytes, _ := ioutil.ReadAll(resp.Body)
+		bodyString := string(bodyBytes)
+		return nil, errors.New(bodyString)
+	}
+	defer conn.Close()
+
+	logClient = &LogClient{
+		client,
+		conn,
+	}
+
+	return
+}
+
+// PubLog ...
+func (logClient *LogClient) PubLog(content string) (err error) {
+	_, message, err := logClient.conn.ReadMessage()
+	if err != nil {
+		println("read:", err)
+		return
+	}
+
+	fmt.Printf("recv: %s", message)
+
+	return
 }
