@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"io/ioutil"
+	"log"
 	"net/http"
 	"net/url"
 	"strconv"
@@ -113,10 +114,15 @@ type LogClient struct {
 	conn *websocket.Conn
 }
 
+func logFail() {
+	log.Println("❌ Fail to Init Kan Log Client! ❌")
+}
+
 // NewLogClient ...
 func NewLogClient(accessKey, secretKey, topic string) (logClient *LogClient, err error) {
 	client, err := NewClient(accessKey, secretKey)
 	if err != nil {
+		logFail()
 		return nil, err
 	}
 
@@ -133,6 +139,7 @@ func NewLogClient(accessKey, secretKey, topic string) (logClient *LogClient, err
 
 	conn, resp, err := websocket.DefaultDialer.Dial(url.String(), header)
 	if err != nil {
+		logFail()
 		bodyBytes, _ := ioutil.ReadAll(resp.Body)
 		bodyString := string(bodyBytes)
 		return nil, errors.New(bodyString)
@@ -140,6 +147,7 @@ func NewLogClient(accessKey, secretKey, topic string) (logClient *LogClient, err
 
 	err = logClient.conn.WriteMessage(websocket.TextMessage, []byte(topic))
 	if err != nil {
+		logFail()
 		return
 	}
 
@@ -147,6 +155,8 @@ func NewLogClient(accessKey, secretKey, topic string) (logClient *LogClient, err
 		client,
 		conn,
 	}
+
+	log.Println("✅ Succeed to Init Kan Log Client! ✅")
 
 	return
 }
