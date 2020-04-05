@@ -114,7 +114,7 @@ type LogClient struct {
 }
 
 // NewLogClient ...
-func NewLogClient(accessKey, secretKey string) (logClient *LogClient, err error) {
+func NewLogClient(accessKey, secretKey, topic string) (logClient *LogClient, err error) {
 	client, err := NewClient(accessKey, secretKey)
 	if err != nil {
 		return nil, err
@@ -136,6 +136,11 @@ func NewLogClient(accessKey, secretKey string) (logClient *LogClient, err error)
 		bodyBytes, _ := ioutil.ReadAll(resp.Body)
 		bodyString := string(bodyBytes)
 		return nil, errors.New(bodyString)
+	}
+
+	err = logClient.conn.WriteMessage(websocket.TextMessage, []byte(topic))
+	if err != nil {
+		return
 	}
 
 	logClient = &LogClient{

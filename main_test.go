@@ -23,6 +23,6 @@ func TestLogPub(t *testing.T) {
 	AccessKey := "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
 	SecretKey := "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
 
-	_, err := NewLogClient(AccessKey, SecretKey)
+	_, err := NewLogClient(AccessKey, SecretKey, "Log Topic")
 	assert.Equal(t, "User not Exist", err.Error())
 }
