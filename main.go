@@ -145,7 +145,7 @@ func NewLogClient(accessKey, secretKey, topic string) (logClient *LogClient, err
 		return nil, errors.New(bodyString)
 	}
 
-	err = logClient.conn.WriteMessage(websocket.TextMessage, []byte(topic))
+	err = conn.WriteMessage(websocket.TextMessage, []byte(topic))
 	if err != nil {
 		logFail()
 		return
