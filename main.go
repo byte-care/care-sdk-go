@@ -176,7 +176,7 @@ func (logClient *LogClient) CloseLog(isSuccessful bool) (err error) {
 	var closeCode int = websocket.CloseNormalClosure
 
 	if !isSuccessful {
-		closeCode = 1
+		closeCode = 4000
 	}
 
 	err = logClient.conn.WriteMessage(websocket.CloseMessage, websocket.FormatCloseMessage(closeCode, ""))
