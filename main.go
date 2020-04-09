@@ -173,7 +173,13 @@ func (logClient *LogClient) PubLog(content string) (err error) {
 
 // CloseLog ...
 func (logClient *LogClient) CloseLog(isSuccessful bool) (err error) {
-	err = logClient.conn.WriteMessage(websocket.CloseMessage, websocket.FormatCloseMessage(websocket.CloseNormalClosure, ""))
+	var closeCode int = websocket.CloseNormalClosure
+
+	if !isSuccessful {
+		closeCode = 1
+	}
+
+	err = logClient.conn.WriteMessage(websocket.CloseMessage, websocket.FormatCloseMessage(closeCode, ""))
 	if err != nil {
 		return
 	}
