@@ -119,7 +119,7 @@ func logFail() {
 }
 
 // NewLogClient ...
-func NewLogClient(accessKey, secretKey, topic string) (logClient *LogClient, err error) {
+func NewLogClient(accessKey, secretKey, topic string, isPro bool) (logClient *LogClient, err error) {
 	client, err := NewClient(accessKey, secretKey)
 	if err != nil {
 		logFail()
@@ -146,6 +146,19 @@ func NewLogClient(accessKey, secretKey, topic string) (logClient *LogClient, err
 	}
 
 	err = conn.WriteMessage(websocket.TextMessage, []byte(topic))
+	if err != nil {
+		logFail()
+		return
+	}
+
+	var proString string
+	if isPro {
+		proString = "1"
+	} else {
+		proString = "0"
+	}
+
+	err = conn.WriteMessage(websocket.TextMessage, []byte(proString))
 	if err != nil {
 		logFail()
 		return
