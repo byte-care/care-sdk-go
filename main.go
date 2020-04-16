@@ -146,8 +146,10 @@ func NewLogClient(accessKey, secretKey, topic string, isPro bool) (logClient *Lo
 	}
 
 	conn.SetPingHandler(func(appData string) error {
+		log.Println("Receive ping~")
 		err := conn.WriteControl(websocket.PongMessage, []byte{}, time.Now().Add(5*time.Second))
 		if err != nil {
+			log.Println("Warning: can't push Pong!")
 			return err
 		}
 		return nil
