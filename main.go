@@ -118,6 +118,15 @@ func logFail() {
 	log.Println("❌ Fail to Init Kan Log Client! ❌")
 }
 
+func readLoop(conn *websocket.Conn) {
+	for {
+		if _, _, err := conn.ReadMessage(); err != nil {
+			log.Println(err)
+			break
+		}
+	}
+}
+
 // NewLogClient ...
 func NewLogClient(accessKey, secretKey, topic string, isPro bool) (logClient *LogClient, err error) {
 	client, err := NewClient(accessKey, secretKey)
@@ -144,6 +153,8 @@ func NewLogClient(accessKey, secretKey, topic string, isPro bool) (logClient *Lo
 		bodyString := string(bodyBytes)
 		return nil, errors.New(bodyString)
 	}
+
+	go readLoop(conn)
 
 	conn.SetPingHandler(func(appData string) error {
 		log.Println("Receive ping~")
