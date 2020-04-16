@@ -145,6 +145,14 @@ func NewLogClient(accessKey, secretKey, topic string, isPro bool) (logClient *Lo
 		return nil, errors.New(bodyString)
 	}
 
+	conn.SetPingHandler(func(appData string) error {
+		err := conn.WriteControl(websocket.PongMessage, []byte{}, time.Now().Add(5*time.Second))
+		if err != nil {
+			return err
+		}
+		return nil
+	})
+
 	err = conn.WriteMessage(websocket.TextMessage, []byte(topic))
 	if err != nil {
 		logFail()
