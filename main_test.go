@@ -1,4 +1,4 @@
-package kansdk
+package caresdk
 
 import (
 	"testing"
@@ -10,12 +10,13 @@ func TestSendEmail(t *testing.T) {
 	AccessKey := "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
 	SecretKey := "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
 
-	kan, err := NewClient(AccessKey, SecretKey)
+	care, err := NewClient(AccessKey, SecretKey)
 	if err != nil {
 		panic(err)
 	}
 
-	err = kan.Email("topic", "msg")
+	err = care.Email("topic", "msg")
+	//goland:noinspection GoNilness
 	assert.Equal(t, "User not Exist", err.Error())
 }
 
@@ -24,5 +25,6 @@ func TestLogPub(t *testing.T) {
 	SecretKey := "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
 
 	_, err := NewLogClient(AccessKey, SecretKey, "Log Topic", false)
+	//goland:noinspection GoNilness
 	assert.Equal(t, "User not Exist", err.Error())
 }

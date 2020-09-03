@@ -1,4 +1,4 @@
-package kansdk
+package caresdk
 
 import (
 	"bytes"
@@ -15,7 +15,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/gorilla/websocket"
 
-	core "github.com/kan-fun/kan-core"
+	core "github.com/byte-care/care-core"
 )
 
 // Client ...
@@ -79,10 +79,10 @@ func (client *Client) post(path string, specificParameter map[string]string) (er
 
 	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 
-	req.Header.Set("Kan-Key", commonParameter.AccessKey)
-	req.Header.Set("Kan-Timestamp", commonParameter.Timestamp)
-	req.Header.Set("Kan-Nonce", commonParameter.SignatureNonce)
-	req.Header.Set("Kan-Signature", signature)
+	req.Header.Set("Care-Key", commonParameter.AccessKey)
+	req.Header.Set("Care-Timestamp", commonParameter.Timestamp)
+	req.Header.Set("Care-Nonce", commonParameter.SignatureNonce)
+	req.Header.Set("Care-Signature", signature)
 
 	resp, err := httpClient.Do(req)
 	if err != nil {
@@ -115,7 +115,7 @@ type LogClient struct {
 }
 
 func logFail() {
-	log.Println("❌ Fail to Init Kan Log Client! ❌")
+	log.Println("❌ Fail to Init Care Log Client! ❌")
 }
 
 func readLoop(conn *websocket.Conn) {
@@ -135,18 +135,18 @@ func NewLogClient(accessKey, secretKey, topic string, isPro bool) (logClient *Lo
 		return nil, err
 	}
 
-	url := url.URL{Scheme: "wss", Host: "live.kan-fun.com", Path: "/log/pub"}
+	url_ := url.URL{Scheme: "wss", Host: "live.kan-fun.com", Path: "/log/pub"}
 
 	_, commonParameter, signature := client.consPostData(nil)
 
 	header := http.Header{
-		"Kan-Key":       {commonParameter.AccessKey},
-		"Kan-Timestamp": {commonParameter.Timestamp},
-		"Kan-Nonce":     {commonParameter.SignatureNonce},
-		"Kan-Signature": {signature},
+		"Care-Key":       {commonParameter.AccessKey},
+		"Care-Timestamp": {commonParameter.Timestamp},
+		"Care-Nonce":     {commonParameter.SignatureNonce},
+		"Care-Signature": {signature},
 	}
 
-	conn, resp, err := websocket.DefaultDialer.Dial(url.String(), header)
+	conn, resp, err := websocket.DefaultDialer.Dial(url_.String(), header)
 	if err != nil {
 		logFail()
 		bodyBytes, _ := ioutil.ReadAll(resp.Body)
@@ -180,7 +180,7 @@ func NewLogClient(accessKey, secretKey, topic string, isPro bool) (logClient *Lo
 		conn,
 	}
 
-	log.Println("✅ Succeed to Init Kan Log Client! ✅")
+	log.Println("✅ Succeed to Init Care Log Client! ✅")
 
 	return
 }

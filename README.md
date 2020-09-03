@@ -1,22 +1,23 @@
-# kan-sdk-go
+# care-sdk-go
 
-# Install Kan SDK
+# Install Care SDK
 ```bash
-go get github.com/kan-fun/kan-go-python
+go get github.com/byte-care/care-sdk-go
 ```
 
 # Quick Start
 ```go
-import "github.com/kan-fun/kan-go-python"
+package main
+import "github.com/byte-care/care-sdk-go"
 
-# Get AccessKey and SecretKey from http://www.mlflow.org.cn/
+# Get AccessKey and SecretKey from https://www.bytecare.xyz/
 AccessKey := "XXXXXX"
 SecretKey := "XXXXXX"
 
-kan, err := NewClient(AccessKey, SecretKey)
+care, err := NewClient(AccessKey, SecretKey)
 if err != nil {
 	panic(err)
 }
 
-kan.Email("topic", "msg")
+care.Email("topic", "msg")
 ```

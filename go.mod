@@ -1,10 +1,10 @@
-module github.com/kan-fun/kan-sdk-go
+module github.com/byte-care/care-sdk-go
 
-go 1.14
+go 1.15
 
 require (
-	github.com/google/uuid v1.1.1
+	github.com/byte-care/care-core v0.0.0-20200831064907-c3e82988c4a6
+	github.com/google/uuid v1.1.2
 	github.com/gorilla/websocket v1.4.2
-	github.com/kan-fun/kan-core v0.0.0-20200405131218-c2ca79386b91
-	github.com/stretchr/testify v1.5.1
+	github.com/stretchr/testify v1.6.1
 )
