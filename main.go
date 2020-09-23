@@ -63,7 +63,7 @@ func (client *Client) consPostData(specificParameter map[string]string) (data ur
 }
 
 func consAPIURL(path string) string {
-	return fmt.Sprintf("https://api.kan-fun.com/%s", path)
+	return fmt.Sprintf("https://api.bytecare.xyz/%s", path)
 }
 
 func (client *Client) post(path string, specificParameter map[string]string) (err error) {
@@ -135,7 +135,7 @@ func NewLogClient(accessKey, secretKey, topic string, isPro bool) (logClient *Lo
 		return nil, err
 	}
 
-	url_ := url.URL{Scheme: "wss", Host: "live.kan-fun.com", Path: "/log/pub"}
+	url_ := url.URL{Scheme: "wss", Host: "live.bytecare.xyz", Path: "/log/pub"}
 
 	_, commonParameter, signature := client.consPostData(nil)
 
