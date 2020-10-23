@@ -115,13 +115,15 @@ type LogClient struct {
 }
 
 func logFail() {
-	log.Println("❌ Fail to Init Care Log Client! ❌")
+	log.Println("❌ Fail to ByteCare")
 }
 
 func readLoop(conn *websocket.Conn) {
 	for {
-		if _, _, err := conn.ReadMessage(); err != nil {
+		if messageType, _, err := conn.ReadMessage(); err != nil {
+			log.Println(messageType)
 			log.Println(err)
+
 			break
 		}
 	}
@@ -180,7 +182,7 @@ func NewLogClient(accessKey, secretKey, topic string, isPro bool) (logClient *Lo
 		conn,
 	}
 
-	log.Println("✅ Succeed to Init Care Log Client! ✅")
+	log.Println("✅ ByteCare")
 
 	return
 }
