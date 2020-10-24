@@ -120,10 +120,10 @@ func logFail() {
 
 func readLoop(conn *websocket.Conn) {
 	for {
-		if messageType, _, err := conn.ReadMessage(); err != nil {
-			log.Println(messageType)
-			log.Println(err)
-
+		if _, _, err := conn.ReadMessage(); err != nil {
+			if websocket.IsUnexpectedCloseError(err, websocket.CloseNormalClosure) {
+				log.Println("⚠️ByteCare Connection Abnormally Closed!")
+			}
 			break
 		}
 	}
